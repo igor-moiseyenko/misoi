@@ -4,11 +4,19 @@
 
 (declare f)
 
-"Menu items."
+"File menu items."
 (def open-menu-item (menu-item :id :open-menu-item
                                :text "Open"))
+
+"Edit menu items."
 (def negative-menu-item (menu-item :id :negative-menu-item
                                    :text "Negative"))
+(def logarithm-menu-item (menu-item :id :logarithm-menu-item
+                                    :text "Logarithm"))
+(def grays-menu-item (menu-item :id :grays-menu-item
+                                :text "Shades of gray"))
+(def roberts-filter-menu-item (menu-item :id :roberts-filter-menu-item
+                                         :text "Roberts filter"))
 
 "Form elements."
 (def icon-path-label
@@ -33,7 +41,10 @@
               :menubar (menubar :items [(menu :text "File"
                                               :items [open-menu-item])
                                         (menu :text "Edit"
-                                              :items [negative-menu-item])])
+                                              :items [negative-menu-item
+                                                      logarithm-menu-item
+                                                      grays-menu-item
+                                                      roberts-filter-menu-item])])
               :minimum-size [640 :by 480]
               :content form
               :on-close :exit))
