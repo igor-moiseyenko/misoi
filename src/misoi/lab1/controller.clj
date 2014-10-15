@@ -6,6 +6,9 @@
 (use 'misoi.lab1.graphics)
 (use 'seesaw.core)
 (use 'seesaw.chooser)
+(use '[incanter.core :as incanter-core])
+(use '[incanter.charts :as incanter-charts :exclude [slider]])
+(use '[incanter.stats :as incanter-stats])
 
 (require '[seesaw.icon :as seesawIcon])
 
@@ -82,6 +85,7 @@
                     (config! (select root [:#icon-label])
                              :icon initialImageBuffer))))
 
+"Roberts menu item controller."
 (defn initRobertsFilterMenuItem
   [root]
   (listen (select root [:#roberts-filter-menu-item])
@@ -89,6 +93,30 @@
                     [event]
                     (makeRobertsFilter initialImageBuffer)
                     (refreshIconLabel root))))
+
+"Show histogram."
+(defn showHistogram
+  [histogramValue histogramName]
+  (view (bar-chart (keys histogramValue)
+                   (vals histogramValue)
+                   :title histogramName
+                   :x-label ""
+                   :y-label ""
+                   :legend true)))
+
+"Init menu item to show RGB histogram."
+(defn initHistogramMenuItem
+  [root]
+  (listen (select root [:#histogram-menu-item])
+          :action (fn
+                    [event]
+                    (let [rgbHistogram (getRGBHistogram initialImageBuffer)
+                          redHistogram (rgbHistogram 0)
+                          greenHistogram (rgbHistogram 1)
+                          blueHistogram (rgbHistogram 2)]
+                      (showHistogram redHistogram "Red")
+                      (showHistogram greenHistogram "Green")
+                      (showHistogram blueHistogram "Blue")))))
 
 (defn init-controller
   [root]
@@ -100,4 +128,5 @@
   (initNegativeMenuItem root)
   (initLogarithmMenuItem root)
   (initGraysMenuItem root)
-  (initRobertsFilterMenuItem root))
+  (initRobertsFilterMenuItem root)
+  (initHistogramMenuItem root))

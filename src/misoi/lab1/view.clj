@@ -18,6 +18,10 @@
 (def roberts-filter-menu-item (menu-item :id :roberts-filter-menu-item
                                          :text "Roberts filter"))
 
+"View menu items."
+(def histogram-menu-item (menu-item :id :histogram-menu-item
+                                        :text "Histogram"))
+
 "Form elements."
 (def icon-path-label
   (label :id :icon-path-label
@@ -44,7 +48,9 @@
                                               :items [negative-menu-item
                                                       logarithm-menu-item
                                                       grays-menu-item
-                                                      roberts-filter-menu-item])])
+                                                      roberts-filter-menu-item])
+                                        (menu :text "View"
+                                              :items [histogram-menu-item])])
               :minimum-size [640 :by 480]
               :content form
               :on-close :exit))

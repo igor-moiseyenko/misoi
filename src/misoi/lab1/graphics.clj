@@ -38,6 +38,22 @@ Common functions to work with images & its pixels (RGB values).
                  y (range height)]
              (callback bufferedImage x y)))))
 
+"Get histogram for RGB values of source image."
+(defn getRGBHistogram
+  [bufferedImage]
+  (let [redValues (transient [])
+        greenValues (transient [])
+        blueValues (transient [])]
+    (traversePixels bufferedImage (fn
+                                    [image x y]
+                                    (let [RGBPixel (.getRGB image x y)]
+                                      (conj! redValues (getRGBRed RGBPixel))
+                                      (conj! greenValues (getRGBGreen RGBPixel))
+                                      (conj! blueValues (getRGBBlue RGBPixel)))))
+    [(frequencies (persistent! redValues))
+     (frequencies (persistent! greenValues))
+     (frequencies (persistent! blueValues))]))
+
 "
 Functions to apply algorithm of item-processing of source image to negate its pixels.
 "
@@ -88,11 +104,16 @@ Functions to apply logarithmic algorithm of item-processing of source image.
 Functions to make shades of gray for source image.
 "
 
+"Shades of gray operator."
+(defn shadesOfGrayOperator
+  [red green blue]
+  (int (+ (* 0.3 red) (* 0.59 green) (* 0.11 blue))))
+
 "Shades of gray pixel transformation"
 (defn shadesOfGraysTransform
   [bufferedImage x y]
   (let [RGBPixel (.getRGB bufferedImage x y)
-        grayResult (int (+ (* 0.3 (getRGBRed RGBPixel)) (* 0.59 (getRGBGreen RGBPixel)) (* 0.11 (getRGBBlue RGBPixel))))]
+        grayResult (shadesOfGrayOperator (getRGBRed RGBPixel) (getRGBGreen RGBPixel) (getRGBBlue RGBPixel))]
     (.setRGB bufferedImage x y (-> RGBPixel
                                    (setRGBRed grayResult)
                                    (setRGBGreen grayResult)
