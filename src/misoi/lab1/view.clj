@@ -17,6 +17,8 @@
                                 :text "Shades of gray"))
 (def roberts-filter-menu-item (menu-item :id :roberts-filter-menu-item
                                          :text "Roberts filter"))
+(def inc-brightness-menu-item (menu-item :id :inc-brightness-menu-item
+                                         :text "Inc brightness"))
 
 "View menu items."
 (def histogram-menu-item (menu-item :id :histogram-menu-item
@@ -48,7 +50,8 @@
                                               :items [negative-menu-item
                                                       logarithm-menu-item
                                                       grays-menu-item
-                                                      roberts-filter-menu-item])
+                                                      roberts-filter-menu-item
+                                                      inc-brightness-menu-item])
                                         (menu :text "View"
                                               :items [histogram-menu-item])])
               :minimum-size [640 :by 480]

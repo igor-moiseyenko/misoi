@@ -176,3 +176,24 @@ Robert filter functions.
 (defn makeRobertsFilter
   [bufferedImage]
   (traversePixels bufferedImage robertsFilter))
+
+(defn incBrightness
+  [value fmax]
+  (if (< (+ value fmax) 255)
+    (+ value fmax)
+    255))
+
+(defn incBrightnessOperator
+  [fmax]
+  (fn
+    [bufferedImage x y]
+    (let [RGBPixel (.getRGB bufferedImage x y)]
+      (.setRGB bufferedImage x y (-> RGBPixel
+                                     (setRGBRed (incBrightness (getRGBRed RGBPixel) fmax))
+                                     (setRGBGreen (incBrightness (getRGBGreen RGBPixel) fmax))
+                                     (setRGBBlue (incBrightness (getRGBBlue RGBPixel) fmax)))))))
+
+"Increment brightness of source image."
+(defn incImageBrightness
+  [bufferedImage]
+  (traversePixels bufferedImage (incBrightnessOperator 30)))

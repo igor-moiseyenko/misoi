@@ -94,6 +94,15 @@
                     (makeRobertsFilter initialImageBuffer)
                     (refreshIconLabel root))))
 
+"Increment brightness menu item controller."
+(defn initIncBrightnessMenuItem
+  [root]
+  (listen (select root [:#inc-brightness-menu-item])
+          :action (fn
+                    [event]
+                    (incImageBrightness initialImageBuffer)
+                    (refreshIconLabel root))))
+
 "Show histogram."
 (defn showHistogram
   [histogramValue histogramName]
@@ -129,4 +138,6 @@
   (initLogarithmMenuItem root)
   (initGraysMenuItem root)
   (initRobertsFilterMenuItem root)
+  (initIncBrightnessMenuItem root)
+
   (initHistogramMenuItem root))
