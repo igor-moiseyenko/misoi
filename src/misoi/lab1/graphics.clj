@@ -1,58 +1,7 @@
 (ns misoi.lab1.graphics
+  (:require [misoi.graphics :as graphics])
   (:import (java.awt.image.BufferedImage)))
 
-"
-Common functions to work with images & its pixels (RGB values).
-"
-
-(defn getRGBRed
-  [RGBPixel]
-  (bit-and (unsigned-bit-shift-right RGBPixel 16) 0x000000FF))
-
-(defn setRGBRed
-  [RGBPixel RGBRed]
-  (bit-or (bit-and RGBPixel 0xFF00FFFF) (bit-shift-left RGBRed 16)))
-
-(defn getRGBGreen
-  [RGBPixel]
-  (bit-and (unsigned-bit-shift-right RGBPixel 8) 0x000000FF))
-
-(defn setRGBGreen
-  [RGBPixel RGBGreen]
-  (bit-or (bit-and RGBPixel 0xFFFF00FF) (bit-shift-left RGBGreen 8)))
-
-(defn getRGBBlue
-  [RGBPixel]
-  (bit-and RGBPixel 0x000000FF))
-
-(defn setRGBBlue
-  [RGBPixel RGBBlue]
-  (bit-or (bit-and RGBPixel 0xFFFFFF00) RGBBlue))
-
-"Traverse all pixels of source image with invoking callback function on each of them."
-(defn traversePixels
-  [bufferedImage callback]
-  (let [width (.getWidth bufferedImage)
-        height (.getHeight bufferedImage)]
-    (doall (for [x (range width)
-                 y (range height)]
-             (callback bufferedImage x y)))))
-
-"Get histogram for RGB values of source image."
-(defn getRGBHistogram
-  [bufferedImage]
-  (let [redValues (transient [])
-        greenValues (transient [])
-        blueValues (transient [])]
-    (traversePixels bufferedImage (fn
-                                    [image x y]
-                                    (let [RGBPixel (.getRGB image x y)]
-                                      (conj! redValues (getRGBRed RGBPixel))
-                                      (conj! greenValues (getRGBGreen RGBPixel))
-                                      (conj! blueValues (getRGBBlue RGBPixel)))))
-    [(frequencies (persistent! redValues))
-     (frequencies (persistent! greenValues))
-     (frequencies (persistent! blueValues))]))
 
 "
 Functions to apply algorithm of item-processing of source image to negate its pixels.
@@ -68,14 +17,14 @@ Functions to apply algorithm of item-processing of source image to negate its pi
   [bufferedImage x y]
   (let [RGBPixel (.getRGB bufferedImage x y)]
     (.setRGB bufferedImage x y (-> RGBPixel
-                                   (setRGBRed (negateOperator (getRGBRed RGBPixel)))
-                                   (setRGBGreen (negateOperator (getRGBGreen RGBPixel)))
-                                   (setRGBBlue (negateOperator (getRGBBlue RGBPixel)))))))
+                                   (graphics/setRGBRed (negateOperator (graphics/getRGBRed RGBPixel)))
+                                   (graphics/setRGBGreen (negateOperator (graphics/getRGBGreen RGBPixel)))
+                                   (graphics/setRGBBlue (negateOperator (graphics/getRGBBlue RGBPixel)))))))
 
 "Make negative image from its source."
 (defn makeNegative
   [bufferedImage]
-  (traversePixels bufferedImage negateRGBPixel))
+  (graphics/traversePixels bufferedImage negateRGBPixel))
 
 "
 Functions to apply logarithmic algorithm of item-processing of source image.
@@ -91,14 +40,14 @@ Functions to apply logarithmic algorithm of item-processing of source image.
   [bufferedImage x y]
   (let [RGBPixel (.getRGB bufferedImage x y)]
     (.setRGB bufferedImage x y (-> RGBPixel
-                                   (setRGBRed (logarithmicOperator (getRGBRed RGBPixel)))
-                                   (setRGBGreen (logarithmicOperator (getRGBGreen RGBPixel)))
-                                   (setRGBBlue (logarithmicOperator (getRGBBlue RGBPixel)))))))
+                                   (graphics/setRGBRed (logarithmicOperator (graphics/getRGBRed RGBPixel)))
+                                   (graphics/setRGBGreen (logarithmicOperator (graphics/getRGBGreen RGBPixel)))
+                                   (graphics/setRGBBlue (logarithmicOperator (graphics/getRGBBlue RGBPixel)))))))
 
 "Apply logarithmic transformation to the source image."
 (defn makeLogarithm
   [bufferedImage]
-  (traversePixels bufferedImage logarithmicTransform))
+  (graphics/traversePixels bufferedImage logarithmicTransform))
 
 "
 Functions to make shades of gray for source image.
@@ -113,16 +62,18 @@ Functions to make shades of gray for source image.
 (defn shadesOfGraysTransform
   [bufferedImage x y]
   (let [RGBPixel (.getRGB bufferedImage x y)
-        grayResult (shadesOfGrayOperator (getRGBRed RGBPixel) (getRGBGreen RGBPixel) (getRGBBlue RGBPixel))]
+        grayResult (shadesOfGrayOperator (graphics/getRGBRed RGBPixel)
+                                         (graphics/getRGBGreen RGBPixel)
+                                         (graphics/getRGBBlue RGBPixel))]
     (.setRGB bufferedImage x y (-> RGBPixel
-                                   (setRGBRed grayResult)
-                                   (setRGBGreen grayResult)
-                                   (setRGBBlue grayResult)))))
+                                   (graphics/setRGBRed grayResult)
+                                   (graphics/setRGBGreen grayResult)
+                                   (graphics/setRGBBlue grayResult)))))
 
 "Make grays for image from its source."
 (defn makeShadesOfGrays
   [bufferedImage]
-  (traversePixels bufferedImage shadesOfGraysTransform))
+  (graphics/traversePixels bufferedImage shadesOfGraysTransform))
 
 "
 Robert filter functions.
@@ -159,18 +110,18 @@ Robert filter functions.
         bottomRGBPixel (getBottomRGBPixel bufferedImage x y)
         rightBottomRGBPixel (getRightBottomRGBPixel bufferedImage x y)]
     (.setRGB bufferedImage x y (-> RGBPixel
-                                   (setRGBRed (robertsOperator (getRGBRed RGBPixel)
-                                                               (getRGBRed rightBottomRGBPixel)
-                                                               (getRGBRed rightRGBPixel)
-                                                               (getRGBRed bottomRGBPixel)))
-                                   (setRGBGreen (robertsOperator (getRGBGreen RGBPixel)
-                                                                 (getRGBGreen rightBottomRGBPixel)
-                                                                 (getRGBGreen rightRGBPixel)
-                                                                 (getRGBGreen bottomRGBPixel)))
-                                   (setRGBBlue (robertsOperator (getRGBBlue RGBPixel)
-                                                                (getRGBBlue rightBottomRGBPixel)
-                                                                (getRGBBlue rightRGBPixel)
-                                                                (getRGBBlue bottomRGBPixel)))))))
+                                   (graphics/setRGBRed (robertsOperator (graphics/getRGBRed RGBPixel)
+                                                                        (graphics/getRGBRed rightBottomRGBPixel)
+                                                                        (graphics/getRGBRed rightRGBPixel)
+                                                                        (graphics/getRGBRed bottomRGBPixel)))
+                                   (graphics/setRGBGreen (robertsOperator (graphics/getRGBGreen RGBPixel)
+                                                                          (graphics/getRGBGreen rightBottomRGBPixel)
+                                                                          (graphics/getRGBGreen rightRGBPixel)
+                                                                          (graphics/getRGBGreen bottomRGBPixel)))
+                                   (graphics/setRGBBlue (robertsOperator (graphics/getRGBBlue RGBPixel)
+                                                                         (graphics/getRGBBlue rightBottomRGBPixel)
+                                                                         (graphics/getRGBBlue rightRGBPixel)
+                                                                         (graphics/getRGBBlue bottomRGBPixel)))))))
 
 (defn robertsFilter
   [bufferedImage x y]
@@ -178,7 +129,7 @@ Robert filter functions.
 
 (defn makeRobertsFilter
   [bufferedImage]
-  (traversePixels bufferedImage robertsFilter))
+  (graphics/traversePixels bufferedImage robertsFilter))
 
 (defn makeRobertsFilter2
   [bufferedImage]
@@ -204,11 +155,19 @@ Robert filter functions.
     [bufferedImage x y]
     (let [RGBPixel (.getRGB bufferedImage x y)]
       (.setRGB bufferedImage x y (-> RGBPixel
-                                     (setRGBRed (incBrightness (getRGBRed RGBPixel) fmax))
-                                     (setRGBGreen (incBrightness (getRGBGreen RGBPixel) fmax))
-                                     (setRGBBlue (incBrightness (getRGBBlue RGBPixel) fmax)))))))
+                                     (graphics/setRGBRed (incBrightness (graphics/getRGBRed RGBPixel)
+                                                                        fmax))
+                                     (graphics/setRGBGreen (incBrightness (graphics/getRGBGreen RGBPixel)
+                                                                          fmax))
+                                     (graphics/setRGBBlue (incBrightness (graphics/getRGBBlue RGBPixel)
+                                                                         fmax)))))))
 
 "Increment brightness of source image."
 (defn incImageBrightness
   [bufferedImage]
-  (traversePixels bufferedImage (incBrightnessOperator 30)))
+  (graphics/traversePixels bufferedImage (incBrightnessOperator 30)))
+
+"RGB histogram"
+(defn getRGBHistogram
+  [bufferedImage]
+  (graphics/getRGBHistogram bufferedImage))
