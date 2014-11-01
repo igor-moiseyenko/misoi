@@ -1,16 +1,14 @@
 (ns misoi.lab1.controller
+  (:require [seesaw.icon :as seesawIcon])
+  (:use [misoi.lab1.graphics]
+        [seesaw.core]
+        [seesaw.chooser]
+        [incanter.core :as incanter-core]
+        [incanter.charts :as incanter-charts :exclude [slider]]
+        [incanter.stats :as incanter-stats])
   (:import (java.io File)
            (javax.imageio ImageIO)
            (java.awt.image BufferedImage)))
-
-(use 'misoi.lab1.graphics)
-(use 'seesaw.core)
-(use 'seesaw.chooser)
-(use '[incanter.core :as incanter-core])
-(use '[incanter.charts :as incanter-charts :exclude [slider]])
-(use '[incanter.stats :as incanter-stats])
-
-(require '[seesaw.icon :as seesawIcon])
 
 (declare initialImageBuffer)
 
@@ -127,7 +125,7 @@
                       (showHistogram greenHistogram "Green")
                       (showHistogram blueHistogram "Blue")))))
 
-(defn init-controller
+(defn init
   [root]
 
   "Init File menu items."

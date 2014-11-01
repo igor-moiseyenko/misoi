@@ -84,7 +84,7 @@ Functions to apply logarithmic algorithm of item-processing of source image.
 "Logarithmic operator."
 (defn logarithmicOperator
   [x]
-  (* 30 (int (Math/log (+ 1 x)))))
+  (* 50 (int (Math/log (+ 1 x)))))
 
 "Apply logarithmic algorithm for concrete pixel of source image."
 (defn logarithmicTransform
@@ -153,10 +153,9 @@ Robert filter functions.
                      (Math/pow (- x1y xy1) 2)))))
 
 "Apply Roberts filter to the source image."
-(defn robertsFilter
-  [bufferedImage x y]
-  (let [RGBPixel (.getRGB bufferedImage x y)
-        rightRGBPixel (getRightRGBPixel bufferedImage x y)
+(defn robertsFilterCommon
+  [bufferedImage x y RGBPixel]
+  (let [rightRGBPixel (getRightRGBPixel bufferedImage x y)
         bottomRGBPixel (getBottomRGBPixel bufferedImage x y)
         rightBottomRGBPixel (getRightBottomRGBPixel bufferedImage x y)]
     (.setRGB bufferedImage x y (-> RGBPixel
@@ -173,9 +172,25 @@ Robert filter functions.
                                                                 (getRGBBlue rightRGBPixel)
                                                                 (getRGBBlue bottomRGBPixel)))))))
 
+(defn robertsFilter
+  [bufferedImage x y]
+  (robertsFilterCommon bufferedImage x y (.getRGB bufferedImage x y)))
+
 (defn makeRobertsFilter
   [bufferedImage]
   (traversePixels bufferedImage robertsFilter))
+
+(defn makeRobertsFilter2
+  [bufferedImage]
+  (let [width (.getWidth bufferedImage)
+        height (.getHeight bufferedImage)
+        imageMatrix (transient [])]
+    (doall (for [x (range width)
+                 y (range height)]
+             (conj! imageMatrix (.getRGB bufferedImage x y))))
+    (doall (for [x (range width)
+                 y (range height)]
+             (robertsFilterCommon bufferedImage x y (imageMatrix (+ y (* x width))))))))
 
 (defn incBrightness
   [value fmax]

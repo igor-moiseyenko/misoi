@@ -1,13 +1,12 @@
-(ns misoi.lab1.core)
-
-(use 'misoi.lab1.view)
-(use 'misoi.lab1.controller)
-(use 'seesaw.core)
+(ns misoi.lab1.core
+  (:require [misoi.lab1.controller :as controller])
+  (:use [misoi.lab1.view :only (f)]
+        [seesaw.core]))
 
 (defn -main
   [& args]
   (prn "Lab1 is running...")
-  (init-controller f)
+  (controller/init f)
   (-> f
       pack!
       show!))
