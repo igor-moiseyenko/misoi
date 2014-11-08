@@ -38,6 +38,13 @@ Common functions to work with images & its pixels (RGB values).
                  y (range height)]
              (callback bufferedImage x y)))))
 
+"Traverse all pixels of source image and set value to each of them equal to the result of callback function."
+(defn traverseAndSetPixels
+  [bufferedImage callback]
+  (traversePixels bufferedImage (fn [bufferedImage x y]
+                                  (let [RGBPixel (.getRGB bufferedImage x y)]
+                                    (.setRGB bufferedImage x y (callback RGBPixel))))))
+
 "Get histogram for RGB values of source image."
 (defn getRGBHistogram
   [bufferedImage]
