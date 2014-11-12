@@ -5,6 +5,14 @@
 Common functions to work with images & its pixels (RGB values).
 "
 
+(defn getImageWidth
+  [image]
+  (.getWidth image))
+
+(defn getImageHeight
+  [image]
+  (.getHeight image))
+
 (defn getRGBRed
   [RGBPixel]
   (bit-and (unsigned-bit-shift-right RGBPixel 16) 0x000000FF))

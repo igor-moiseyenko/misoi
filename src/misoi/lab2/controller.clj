@@ -8,27 +8,27 @@
 "Main controller interface"
 (declare init)
 
-"Image buffer shared object"
+"Shared objects"
 (declare initialImageBuffer)
 
-(defn loadImagePath
+(defn- loadImagePath
   [root imagePath]
   (config! (select root [:#icon-path-label])
            :text imagePath))
 
-(defn loadImage
+(defn- loadImage
   [root file]
 
   (def initialImageBuffer (ImageIO/read file))
   (config! (select root [:#icon-label])
            :icon (seesawIcon/icon initialImageBuffer)))
 
-(defn imagesFileFilter
+(defn- imagesFileFilter
   [file]
   (.endsWith (clojure.string/lower-case (.getAbsolutePath file)) ".png"))
 
 "Open menu item controller."
-(defn initOpenMenuItem
+(defn- initOpenMenuItem
   [root]
   (listen (select root [:#open-menu-item])
           :action (fn
@@ -40,17 +40,25 @@
                                                (loadImage root file)
                                                (loadImagePath root (.getAbsolutePath file)))))))
 
-"Binarization menu item controller."
-(defn initBinMenuItem
+"Binary thresholding menu item controller."
+(defn- initBinThresholdingItem
   [root]
-  (listen (select root [:#bin-menu-item])
+  (listen (select root [:#bin-thresholding-menu-item])
           :action (fn [event]
-                    (lab2Graphics/makeThresholding initialImageBuffer)
+                    (lab2Graphics/makeBinaryThresholding initialImageBuffer)
                     (config! (select root [:#icon-label])
                              :icon initialImageBuffer))))
+
+"Recursive segmentation menu item."
+(defn- initRecursiveSegmentationMenuItem
+  [root]
+  (listen (select root [:#recursive-segmentation-menu-item])
+          :action (fn [event]
+                    (lab2Graphics/makeSequentialSegmentation initialImageBuffer))))
 
 "Init controller"
 (defn init
   [root]
   (initOpenMenuItem root)
-  (initBinMenuItem root))
+  (initBinThresholdingItem root)
+  (initRecursiveSegmentationMenuItem root))

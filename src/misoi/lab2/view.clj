@@ -11,8 +11,10 @@
                                :text "Open"))
 
 "Edit menu items."
-(def bin-menu-item (menu-item :id :bin-menu-item
-                              :text "Binarization"))
+(def bin-thresholding-menu-item (menu-item :id :bin-thresholding-menu-item
+                                           :text "Binary"))
+(def recursive-segmentation-menu-item (menu-item :id :recursive-segmentation-menu-item
+                                                 :text "Recursive"))
 
 "Form elements"
 
@@ -38,8 +40,10 @@
   (frame :title "Lab2"
          :menubar (menubar :items [(menu :text "File"
                                          :items [open-menu-item])
-                                   (menu :text "Edit"
-                                         :items [bin-menu-item])])
+                                   (menu :text "Thresholding"
+                                         :items [bin-thresholding-menu-item])
+                                   (menu :text "Segmentation"
+                                         :items [recursive-segmentation-menu-item])])
          :minimum-size [640 :by 480]
          :content form
          :on-close :exit))
