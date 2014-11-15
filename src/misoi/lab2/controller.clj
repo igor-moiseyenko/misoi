@@ -54,7 +54,9 @@
   [root]
   (listen (select root [:#recursive-segmentation-menu-item])
           :action (fn [event]
-                    (lab2Graphics/makeSequentialSegmentation initialImageBuffer))))
+                    (lab2Graphics/makeSequentialSegmentation initialImageBuffer)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
 
 "Init controller"
 (defn init

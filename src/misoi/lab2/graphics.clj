@@ -118,10 +118,70 @@
     (assoc! labelsEqualityTable topLabel (conj (get labelsEqualityTable topLabel) leftLabel))
     (assoc! labelsEqualityTable topLabel #{ leftLabel })))
 
+"Depth-first search algorithm for traversing graph."
+(defn- depth-first-search
+  [m k visited objectLabel]
+  (when (= (get visited k) nil)
+    (assoc! visited k objectLabel)
+    (doall (map (fn
+                  [v]
+                  (depth-first-search m v visited objectLabel))
+                (get m k)))))
+
 "Workaround:
 clojure.lang.PersistentArrayMap by default without defining value,
 clojure.lang.PersistentHashMap only after value definition."
-(def labelsEqualityTablePrototype {:prototype 1})
+(def visitedPrototype { :prototype 1 })
+
+"Create label-color mapping with depth-first search algorithm."
+(defn- label-color-map
+  [m]
+  (let [visited (transient visitedPrototype)
+        objectLabelWrapper (transient [0])]
+    (doall (map (fn
+                  [k]
+                  (if (= (get visited k) nil)
+                    (do (assoc! objectLabelWrapper 0 (inc (get objectLabelWrapper 0)))
+                        (depth-first-search m k visited (get objectLabelWrapper 0)))))
+                (keys m)))
+    (dissoc (persistent! visited) :prototype)))
+
+"Workaround:
+clojure.lang.PersistentArrayMap by default without defining value,
+clojure.lang.PersistentHashMap only after value definition."
+(def labelsEqualityTablePrototype { :prototype 1 })
+
+(defn- create-colors-map
+  []
+  { 0 [ 20 60 80]
+   1 [ 100 120 140]
+   2 [ 120 140 160]
+   3 [ 140 160 180]
+   4 [ 160 180 200]
+   5 [ 180 200 220]
+   6 [ 200 220 240]
+   7 [ 220 240 40]
+   8 [ 240 40 60]
+   9 [ 40 60 80]})
+
+"Set colors to pixels according to the label-color map."
+(defn- set-color-to-labels
+  [bufferedImage labels labelColorMap]
+  (let [colorsMap (create-colors-map)]
+    (graphics/traversePixels bufferedImage
+                             (fn [bufferedImage col row]
+                               (let [label (get-in labels [row col])
+                                     color (get labelColorMap label)]
+                                 (if (not= color nil)
+                                   (let [colorMapIndex (mod color (count colorsMap))
+                                         RGBPixel (.getRGB bufferedImage col row)]
+                                     (.setRGB bufferedImage
+                                              col
+                                              row
+                                              (-> RGBPixel
+                                                  (graphics/setRGBRed (get (get colorsMap colorMapIndex) 0))
+                                                  (graphics/setRGBGreen (get (get colorsMap colorMapIndex) 1))
+                                                  (graphics/setRGBBlue (get (get colorsMap colorMapIndex) 2)))))))))))
 
 "Sequential segmentation."
 (defn makeSequentialSegmentation
@@ -147,4 +207,6 @@ clojure.lang.PersistentHashMap only after value definition."
                      (if (not= (getLeftLabel labels row col)
                                (getTopLabel labels row col))
                        (assocEqualityLables! labelsEqualityTable (getLeftLabel labels row col) (getTopLabel labels row col)))))))))
-    (prn (persistent! labelsEqualityTable))))
+    (let [labelColorMap (label-color-map (dissoc (persistent! labelsEqualityTable) :prototype))]
+      (prn labelColorMap)
+      (set-color-to-labels bufferedImage (util/convert-matrix-to-persistent labels) labelColorMap))))
