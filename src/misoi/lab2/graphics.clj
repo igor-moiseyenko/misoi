@@ -133,8 +133,8 @@ clojure.lang.PersistentArrayMap by default without defining value,
 clojure.lang.PersistentHashMap only after value definition."
 (def visitedPrototype { :prototype 1 })
 
-"Create label-color mapping with depth-first search algorithm."
-(defn- label-color-map
+"Create label - connected area mapping with depth-first search algorithm."
+(defn- label-area-map
   [m]
   (let [visited (transient visitedPrototype)
         objectLabelWrapper (transient [0])]
@@ -151,6 +151,7 @@ clojure.lang.PersistentArrayMap by default without defining value,
 clojure.lang.PersistentHashMap only after value definition."
 (def labelsEqualityTablePrototype { :prototype 1 })
 
+"Create map with colors."
 (defn- create-colors-map
   []
   { 0 [ 20 60 80]
@@ -166,14 +167,14 @@ clojure.lang.PersistentHashMap only after value definition."
 
 "Set colors to pixels according to the label-color map."
 (defn- set-color-to-labels
-  [bufferedImage labels labelColorMap]
+  [bufferedImage labels labelAreaMap]
   (let [colorsMap (create-colors-map)]
     (graphics/traversePixels bufferedImage
                              (fn [bufferedImage col row]
                                (let [label (get-in labels [row col])
-                                     color (get labelColorMap label)]
-                                 (if (not= color nil)
-                                   (let [colorMapIndex (mod color (count colorsMap))
+                                     area (get labelAreaMap label)]
+                                 (if (not= area nil)
+                                   (let [colorMapIndex (mod area (count colorsMap))
                                          RGBPixel (.getRGB bufferedImage col row)]
                                      (.setRGB bufferedImage
                                               col
@@ -207,6 +208,6 @@ clojure.lang.PersistentHashMap only after value definition."
                      (if (not= (getLeftLabel labels row col)
                                (getTopLabel labels row col))
                        (assocEqualityLables! labelsEqualityTable (getLeftLabel labels row col) (getTopLabel labels row col)))))))))
-    (let [labelColorMap (label-color-map (dissoc (persistent! labelsEqualityTable) :prototype))]
-      (prn labelColorMap)
-      (set-color-to-labels bufferedImage (util/convert-matrix-to-persistent labels) labelColorMap))))
+    (let [labelAreaMap (label-area-map (dissoc (persistent! labelsEqualityTable) :prototype))]
+      (prn labelAreaMap)
+      (set-color-to-labels bufferedImage (util/convert-matrix-to-persistent labels) labelAreaMap))))
