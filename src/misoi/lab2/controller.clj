@@ -10,6 +10,8 @@
 
 "Shared objects"
 (declare initialImageBuffer)
+(declare pixelLabels)
+(declare labelAreaMap)
 
 (defn- loadImagePath
   [root imagePath]
@@ -49,18 +51,28 @@
                     (config! (select root [:#icon-label])
                              :icon initialImageBuffer))))
 
-"Recursive segmentation menu item."
+"Recursive segmentation menu item controller."
 (defn- initRecursiveSegmentationMenuItem
   [root]
   (listen (select root [:#recursive-segmentation-menu-item])
           :action (fn [event]
-                    (lab2Graphics/makeSequentialSegmentation initialImageBuffer)
-                    (config! (select root [:#icon-label])
-                             :icon initialImageBuffer))))
+                    (let [segmentationResult (lab2Graphics/makeSequentialSegmentation initialImageBuffer)]
+                      (def pixelLabels (get segmentationResult :pixel-labels))
+                      (def labelAreaMap (get segmentationResult :label-area-map))
+                      (config! (select root [:#icon-label])
+                               :icon initialImageBuffer)))))
+
+"k-medoids clustering menu item controller."
+(defn- initKMedoidsClusteringMenuItem
+  [root]
+  (listen (select root [:#k-medoids-clustering-menu-item])
+          :action (fn [event]
+                    (prn "lalala"))))
 
 "Init controller"
 (defn init
   [root]
   (initOpenMenuItem root)
   (initBinThresholdingItem root)
-  (initRecursiveSegmentationMenuItem root))
+  (initRecursiveSegmentationMenuItem root)
+  (initKMedoidsClusteringMenuItem root))

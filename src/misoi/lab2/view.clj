@@ -10,11 +10,17 @@
 (def open-menu-item (menu-item :id :open-menu-item
                                :text "Open"))
 
-"Edit menu items."
+"Thresholding menu items."
 (def bin-thresholding-menu-item (menu-item :id :bin-thresholding-menu-item
                                            :text "Binary"))
+
+"Segmentation menu items."
 (def recursive-segmentation-menu-item (menu-item :id :recursive-segmentation-menu-item
                                                  :text "Recursive"))
+
+"Clustering menu items."
+(def k-medoids-clustering-menu-item (menu-item :id :k-medoids-clustering-menu-item
+                                               :text "k-medoids"))
 
 "Form elements"
 
@@ -43,7 +49,9 @@
                                    (menu :text "Thresholding"
                                          :items [bin-thresholding-menu-item])
                                    (menu :text "Segmentation"
-                                         :items [recursive-segmentation-menu-item])])
+                                         :items [recursive-segmentation-menu-item])
+                                   (menu :text "Clustering"
+                                         :items [k-medoids-clustering-menu-item])])
          :minimum-size [640 :by 480]
          :content form
          :on-close :exit))

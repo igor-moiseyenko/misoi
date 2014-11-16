@@ -208,6 +208,9 @@ clojure.lang.PersistentHashMap only after value definition."
                      (if (not= (getLeftLabel labels row col)
                                (getTopLabel labels row col))
                        (assocEqualityLables! labelsEqualityTable (getLeftLabel labels row col) (getTopLabel labels row col)))))))))
-    (let [labelAreaMap (label-area-map (dissoc (persistent! labelsEqualityTable) :prototype))]
+    (let [labelAreaMap (label-area-map (dissoc (persistent! labelsEqualityTable) :prototype))
+          pixelLabels (util/convert-matrix-to-persistent labels)]
       (prn labelAreaMap)
-      (set-color-to-labels bufferedImage (util/convert-matrix-to-persistent labels) labelAreaMap))))
+      (set-color-to-labels bufferedImage pixelLabels labelAreaMap)
+      { :pixel-labels pixelLabels
+       :label-area-map labelAreaMap})))
