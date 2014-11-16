@@ -6,6 +6,8 @@
 "Lab2 graphics interface"
 (declare makeBinaryThresholding)
 (declare makeRecursiveSegmentation)
+(declare makeSequentialSegmentation)
+(declare makeKMedoidsClustering)
 
 (declare initialLabels)
 
@@ -120,12 +122,12 @@
 
 "Depth-first search algorithm for traversing graph."
 (defn- depth-first-search
-  [m k visited objectLabel]
+  [m k visited areaLabel]
   (when (= (get visited k) nil)
-    (assoc! visited k objectLabel)
+    (assoc! visited k areaLabel)
     (doall (map (fn
                   [v]
-                  (depth-first-search m v visited objectLabel))
+                  (depth-first-search m v visited areaLabel))
                 (get m k)))))
 
 "Workaround:
@@ -134,17 +136,18 @@ clojure.lang.PersistentHashMap only after value definition."
 (def visitedPrototype { :prototype 1 })
 
 "Create label - connected area mapping with depth-first search algorithm."
-(defn- label-area-map
+(defn- label-areas
   [m]
   (let [visited (transient visitedPrototype)
-        objectLabelWrapper (transient [0])]
+       areaLabelWrapper (transient [0])]
     (doall (map (fn
                   [k]
                   (if (= (get visited k) nil)
-                    (do (assoc! objectLabelWrapper 0 (inc (get objectLabelWrapper 0)))
-                        (depth-first-search m k visited (get objectLabelWrapper 0)))))
+                    (do (assoc! areaLabelWrapper 0 (inc (get areaLabelWrapper 0)))
+                        (depth-first-search m k visited (get areaLabelWrapper 0)))))
                 (keys m)))
-    (dissoc (persistent! visited) :prototype)))
+    { :label-area-map (dissoc (persistent! visited) :prototype)
+     :areas (get (persistent! areaLabelWrapper) 0) }))
 
 "Workaround:
 clojure.lang.PersistentArrayMap by default without defining value,
@@ -208,9 +211,56 @@ clojure.lang.PersistentHashMap only after value definition."
                      (if (not= (getLeftLabel labels row col)
                                (getTopLabel labels row col))
                        (assocEqualityLables! labelsEqualityTable (getLeftLabel labels row col) (getTopLabel labels row col)))))))))
-    (let [labelAreaMap (label-area-map (dissoc (persistent! labelsEqualityTable) :prototype))
+    (let [labelAreas (label-areas (dissoc (persistent! labelsEqualityTable) :prototype))
+          labelAreaMap (get labelAreas :label-area-map)
+          areas (get labelAreas :areas)
           pixelLabels (util/convert-matrix-to-persistent labels)]
-      (prn labelAreaMap)
+      (prn (get labelAreas :label-area-map))
       (set-color-to-labels bufferedImage pixelLabels labelAreaMap)
       { :pixel-labels pixelLabels
-       :label-area-map labelAreaMap})))
+       :label-area-map labelAreaMap
+       :areas areas})))
+
+(def areasOfItemsPrototype { :prototype 1 } )
+
+"Group items by area which it belongs."
+(defn- get-areas-of-items
+  [rows cols pixelLabels labelAreaMap]
+  (let [areasOfItems (transient areasOfItemsPrototype)]
+    (doall (for [row (range rows)
+                 col (range cols)]
+             (let [pixelLabel (get-in pixelLabels [row col])
+                   area (get labelAreaMap pixelLabel)]
+               (if (not= area nil)
+                 (if (not= (get areasOfItems area) nil)
+                   (assoc! areasOfItems area (conj (get areasOfItems area) [row col]))
+                   (assoc! areasOfItems area [[row col]]))))))
+    (dissoc (persistent! areasOfItems) :prototype)))
+
+"Get square area attribute."
+(defn- get-area-square
+  [areaItems]
+  (count areaItems))
+
+"Get attribute vector for each area."
+(defn- get-areas-attribute-vectors
+  [pixelLabels areasOfItems]
+  (reduce (fn [areasAttributeVectors areaOfItems]
+            (let [area (get areaOfItems 0)
+                  items (get areaOfItems 1)]
+              (assoc areasAttributeVectors area
+                     { :square (get-area-square items)})))
+          {}
+          areasOfItems))
+
+"k-medoids clustering."
+(defn makeKMedoidsClustering
+  [bufferedImage pixelLabels labelAreaMap areas]
+  (let [rows (.getHeight bufferedImage)
+        cols (.getWidth bufferedImage)
+        areasOfItems (get-areas-of-items rows cols pixelLabels labelAreaMap)]
+    (prn labelAreaMap)
+    (prn areas)
+    (prn (count pixelLabels))
+    (prn (count (get pixelLabels 0)))
+    (prn (get-areas-attribute-vectors pixelLabels areasOfItems))))

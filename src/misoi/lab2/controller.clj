@@ -12,6 +12,7 @@
 (declare initialImageBuffer)
 (declare pixelLabels)
 (declare labelAreaMap)
+(declare areas)
 
 (defn- loadImagePath
   [root imagePath]
@@ -59,6 +60,7 @@
                     (let [segmentationResult (lab2Graphics/makeSequentialSegmentation initialImageBuffer)]
                       (def pixelLabels (get segmentationResult :pixel-labels))
                       (def labelAreaMap (get segmentationResult :label-area-map))
+                      (def areas (get segmentationResult :areas))
                       (config! (select root [:#icon-label])
                                :icon initialImageBuffer)))))
 
@@ -67,7 +69,7 @@
   [root]
   (listen (select root [:#k-medoids-clustering-menu-item])
           :action (fn [event]
-                    (prn "lalala"))))
+                    (lab2Graphics/makeKMedoidsClustering initialImageBuffer pixelLabels labelAreaMap areas))))
 
 "Init controller"
 (defn init
