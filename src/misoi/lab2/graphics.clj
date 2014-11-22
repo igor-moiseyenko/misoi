@@ -242,6 +242,27 @@ clojure.lang.PersistentHashMap only after value definition."
   [areaItems]
   (count areaItems))
 
+"Return true if the item is not a perimeter item with 4-connection type."
+(defn- is-inner4-item
+  [pixelLabels item]
+  (let [row (get item 0)
+        col (get item 1)]
+    (and (not= (get-in pixelLabels [row (- col 1)]) 0)
+         (not= (get-in pixelLabels [(- row 1) col]) 0)
+         (not= (get-in pixelLabels [row (+ col 1)]) 0)
+         (not= (get-in pixelLabels [(+ row 1) col]) 0))))
+
+"Get perimeter of area items, which is equal "
+(defn- get-area-perimeter
+  [pixelLabels areaItems]
+  (- (count areaItems)
+     (count (reduce (fn [innerItems item]
+                      (if (is-inner4-item pixelLabels item)
+                        (conj innerItems item)
+                        innerItems))
+                    []
+                    areaItems))))
+
 "Get attribute vector for each area."
 (defn- get-areas-attribute-vectors
   [pixelLabels areasOfItems]
@@ -249,7 +270,8 @@ clojure.lang.PersistentHashMap only after value definition."
             (let [area (get areaOfItems 0)
                   items (get areaOfItems 1)]
               (assoc areasAttributeVectors area
-                     { :square (get-area-square items)})))
+                     { :square (get-area-square items)
+                      :perimeter (get-area-perimeter pixelLabels items) })))
           {}
           areasOfItems))
 
