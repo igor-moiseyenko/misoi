@@ -270,19 +270,128 @@ clojure.lang.PersistentHashMap only after value definition."
             (let [area (get areaOfItems 0)
                   items (get areaOfItems 1)]
               (assoc areasAttributeVectors area
-                     { :square (get-area-square items)
-                      :perimeter (get-area-perimeter pixelLabels items) })))
+                     [(get-area-square items) (get-area-perimeter pixelLabels items)])))
           {}
           areasOfItems))
 
+"
+Clustering.
+PAM - partition around medoids.
+Step 1 - build.
+Step 2 - swap.
+"
+
+"Get distance between specified objects by their attributes."
+(defn- object-distance
+  [obj1Attributes obj2Attributes]
+  (apply + (map (fn [attr1 attr2]
+                  (Math/abs (- attr1 attr2)))
+                obj1Attributes
+                obj2Attributes)))
+
+"Get sum of distances between objects."
+(defn- get-sum-of-distances
+  [centerAttributes objectsAttributes]
+  (apply + (map (fn [objectAttributes]
+                  (object-distance centerAttributes objectAttributes))
+                objectsAttributes)))
+
+"Returns object with the least of the distances sum."
+(defn- min-object-distances-sum
+  ([obj1] obj1)
+  ([obj1 obj2] (if (< (get obj1 1) (get obj2 1)) obj1 obj2))
+  ([obj1 obj2 & more] (reduce min-object-distances-sum (min-object-distances-sum obj1 obj2) more)))
+
+"Get first selected center"
+(defn- get-first-selected-objectId
+  [objects]
+  (get (apply min-object-distances-sum
+              (map (fn [objectId]
+                     [objectId (get-sum-of-distances (get objects objectId) (vals (dissoc objects objectId)))])
+                   (keys objects)))
+       0))
+
+"Returns distance between object and its closest central object."
+(defn- closest-center-object-distance
+  [objects centerIds objectAttrs]
+  (apply min (map (fn [centerId]
+                    (object-distance objectAttrs (get objects centerId)))
+                  centerIds)))
+
+"Returns total gain for potential center with specified id."
+(defn- potential-center-total-gain
+  [objects centerIds potentialCenterId]
+  (apply + (map (fn [objectId]
+                  (max (- (closest-center-object-distance objects centerIds (get objects objectId))
+                          (object-distance (get objects objectId) (get objects potentialCenterId)))
+                       0))
+                (keys (util/dissoc-keys objects (conj centerIds potentialCenterId))))))
+
+"Returns potential center with the max total gain"
+(defn- max-object-total-gain
+  ([obj1] obj1)
+  ([obj1 obj2] (if (> (get obj1 1) (get obj2 1)) obj1 obj2))
+  ([obj1 obj2 & more] (reduce max-object-total-gain (max-object-total-gain obj1 obj2) more)))
+
+"Returns all selected object ids based on first selected object and needed number of centers."
+(defn- get-all-selected-objectIds
+  [numOfCenters objects centerIds]
+  (let [restCentersSize (- numOfCenters (count centerIds))]
+    (if (> restCentersSize 0)
+      (get-all-selected-objectIds numOfCenters
+                                      objects
+                                      (conj centerIds (get (apply max-object-total-gain
+                                                                  (map (fn [objectId]
+                                                                         [objectId (potential-center-total-gain objects centerIds objectId)])
+                                                                       (keys (util/dissoc-keys objects centerIds))))
+                                                           0)))
+      centerIds)))
+
+"PAM algorithm build phase - complete initial set of selected object (potential medoids)."
+(defn- pam-build-phase
+  [numOfMedoids objects]
+  (let [centerIds [(get-first-selected-objectId objects)]]
+    (prn centerIds)
+    (get-all-selected-objectIds numOfMedoids objects centerIds)))
+
+"Returns closest medoid."
+(defn- closest-medoid
+  [objects medoidIds objectAttributes]
+  (get (apply min-object-distances-sum
+              (map (fn [medoidId]
+                     [medoidId (object-distance (get objects medoidId) objectAttributes)])
+                   medoidIds))
+       0))
+
+"PAM (partition around medoids) algorithm implementation."
+(defn- make-pam-clustering
+  [numOfMedoids areasAttributeVectors]
+  (prn numOfMedoids areasAttributeVectors)
+  (let [medoidIds (pam-build-phase numOfMedoids areasAttributeVectors)]
+    (prn medoidIds)
+    (reduce (fn [areasMedoidsMap area]
+              (assoc areasMedoidsMap area (closest-medoid areasAttributeVectors medoidIds (get areasAttributeVectors area))))
+            {}
+            (keys areasAttributeVectors))))
+
+"Returns cluster - area mapping."
+(defn- cluster-area-map
+  [labelAreaMap areasMedoidsMap]
+  (reduce (fn [clusteredLabelAreaMap label]
+            (assoc clusteredLabelAreaMap label (get areasMedoidsMap (get labelAreaMap label))))
+          {}
+          (keys labelAreaMap)))
+
 "k-medoids clustering."
-(defn makeKMedoidsClustering
+(defn makeClustering
   [bufferedImage pixelLabels labelAreaMap areas]
   (let [rows (.getHeight bufferedImage)
         cols (.getWidth bufferedImage)
-        areasOfItems (get-areas-of-items rows cols pixelLabels labelAreaMap)]
+        areasOfItems (get-areas-of-items rows cols pixelLabels labelAreaMap)
+        areasAttributeVectors (get-areas-attribute-vectors pixelLabels areasOfItems)
+        areasMedoidsMap (make-pam-clustering 2 areasAttributeVectors)]
     (prn labelAreaMap)
-    (prn areas)
-    (prn (count pixelLabels))
-    (prn (count (get pixelLabels 0)))
-    (prn (get-areas-attribute-vectors pixelLabels areasOfItems))))
+    (prn areasMedoidsMap)
+    (let [clusteredLabelAreaMap (cluster-area-map labelAreaMap areasMedoidsMap)]
+      (prn clusteredLabelAreaMap)
+      (set-color-to-labels bufferedImage pixelLabels clusteredLabelAreaMap))))

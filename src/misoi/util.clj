@@ -29,3 +29,10 @@
             (conj row1 (persistent! row2)))
           []
           (persistent! m)))
+
+(defn dissoc-keys
+  [m keys]
+  (reduce (fn [m k]
+            (dissoc m k))
+          m
+          keys))

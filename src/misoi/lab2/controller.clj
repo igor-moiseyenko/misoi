@@ -69,7 +69,9 @@
   [root]
   (listen (select root [:#k-medoids-clustering-menu-item])
           :action (fn [event]
-                    (lab2Graphics/makeKMedoidsClustering initialImageBuffer pixelLabels labelAreaMap areas))))
+                    (lab2Graphics/makeClustering initialImageBuffer pixelLabels labelAreaMap areas)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
 
 "Init controller"
 (defn init
