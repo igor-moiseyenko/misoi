@@ -5,6 +5,9 @@
 
 "Lab2 graphics interface"
 (declare makeBinaryThresholding)
+
+(declare makeMedianFilter)
+
 (declare makeRecursiveSegmentation)
 (declare makeSequentialSegmentation)
 (declare makeKMedoidsClustering)
@@ -13,15 +16,15 @@
 
 "Returns min byte value in case of x less than threshold, max byte value - otherwise."
 (defn- binaryThresholdOperator
-  [x]
-  (if (< x 100) 0 255))
+  [x thresholdingValue]
+  (if (< x thresholdingValue) 0 255))
 
 "Returns RGBPixel after applying logical AND on each RGB component after applying threshold operator on each of them."
 (defn- makeRGBPixelThresholding
-  [RGBPixel]
-  (let [RGBRedResult (binaryThresholdOperator (graphics/getRGBRed RGBPixel))
-        RGBGreenResult (binaryThresholdOperator (graphics/getRGBGreen RGBPixel))
-        RGBBlueResult (binaryThresholdOperator (graphics/getRGBBlue RGBPixel))
+  [RGBPixel thresholdingValue]
+  (let [RGBRedResult (binaryThresholdOperator (graphics/getRGBRed RGBPixel) thresholdingValue)
+        RGBGreenResult (binaryThresholdOperator (graphics/getRGBGreen RGBPixel) thresholdingValue)
+        RGBBlueResult (binaryThresholdOperator (graphics/getRGBBlue RGBPixel) thresholdingValue)
         RGBResult (and RGBRedResult RGBGreenResult RGBBlueResult)]
     (-> RGBPixel
         (graphics/setRGBRed RGBResult)
@@ -30,8 +33,55 @@
 
 "Make binary thresholding of the specified buffered image."
 (defn makeBinaryThresholding
-  [bufferedImage]
-  (graphics/traverseAndSetPixels bufferedImage makeRGBPixelThresholding))
+  [bufferedImage thresholdingValue]
+  (graphics/traverseAndSetPixels bufferedImage (fn [RGBPixel]
+                                                 (makeRGBPixelThresholding RGBPixel thresholdingValue))))
+
+"
+Functions to work with image noise.
+"
+
+"Median filter operator."
+(defn- medianFilterOperator
+  [pixels]
+  (let [sortedPixels (vec (sort pixels))
+        len (count sortedPixels)
+        midIndex (quot len 2)]
+    (if (odd? len)
+      (get sortedPixels midIndex)
+      (quot (+ (get sortedPixels (- midIndex 1)) (get sortedPixels midIndex)) 2))))
+
+"Median filter."
+(defn- medianFilter
+  [bufferedImage width height col row filterSize]
+  (let [RGBPixel (.getRGB bufferedImage col row)
+        indent (quot filterSize 2)
+        colIndices (range (- col indent) (inc (+ col indent)))
+        rowIndices (range (- row indent) (inc (+ row indent)))
+        pixelsUnderFilter (reduce (fn [pixels colIndex]
+                                    (into pixels (reduce (fn [column rowIndex]
+                                                           (conj column (if (and (> colIndex 0) (> rowIndex 0) (< colIndex width) (< rowIndex height))
+                                                                          (.getRGB bufferedImage colIndex rowIndex)
+                                                                          0)))
+                                                         []
+                                                         rowIndices)))
+                                  []
+                                  colIndices)
+        redValues (map graphics/getRGBRed pixelsUnderFilter)
+        greenValues (map graphics/getRGBGreen pixelsUnderFilter)
+        blueValues (map graphics/getRGBBlue pixelsUnderFilter)]
+    (.setRGB bufferedImage col row (-> RGBPixel
+                                   (graphics/setRGBRed (medianFilterOperator redValues))
+                                   (graphics/setRGBGreen (medianFilterOperator greenValues))
+                                   (graphics/setRGBBlue (medianFilterOperator blueValues))))))
+
+"Median filter."
+(defn makeMedianFilter
+  [bufferedImage filterSize]
+  (let [width (.getWidth bufferedImage)
+        height (.getHeight bufferedImage)]
+    (graphics/traversePixels bufferedImage (fn [bufferedImage col row]
+                                             (medianFilter bufferedImage width height col row filterSize)))))
 
 (defn- initLabels
   [xMax yMax]
@@ -158,11 +208,11 @@ clojure.lang.PersistentHashMap only after value definition."
 (defn- create-colors-map
   []
   { 0 [ 20 60 80]
-   1 [ 100 120 140]
+   1 [ 100 200 140]
    2 [ 120 140 160]
-   3 [ 140 160 180]
+   3 [ 200 160 180]
    4 [ 160 180 200]
-   5 [ 180 200 220]
+   5 [ 40 200 220]
    6 [ 200 220 240]
    7 [ 220 240 40]
    8 [ 240 40 60]
@@ -268,9 +318,12 @@ clojure.lang.PersistentHashMap only after value definition."
   [pixelLabels areasOfItems]
   (reduce (fn [areasAttributeVectors areaOfItems]
             (let [area (get areaOfItems 0)
-                  items (get areaOfItems 1)]
+                  items (get areaOfItems 1)
+                  square (get-area-square items)
+                  perimeter (get-area-perimeter pixelLabels items)
+                  capacity (/ (Math/pow perimeter 2) square)]
               (assoc areasAttributeVectors area
-                     [(get-area-square items) (get-area-perimeter pixelLabels items)])))
+                     [square perimeter capacity])))
           {}
           areasOfItems))
 
@@ -384,12 +437,12 @@ Step 2 - swap.
 
 "k-medoids clustering."
 (defn makeClustering
-  [bufferedImage pixelLabels labelAreaMap areas]
+  [bufferedImage pixelLabels labelAreaMap numOfMedoids]
   (let [rows (.getHeight bufferedImage)
         cols (.getWidth bufferedImage)
         areasOfItems (get-areas-of-items rows cols pixelLabels labelAreaMap)
         areasAttributeVectors (get-areas-attribute-vectors pixelLabels areasOfItems)
-        areasMedoidsMap (make-pam-clustering 2 areasAttributeVectors)]
+        areasMedoidsMap (make-pam-clustering numOfMedoids areasAttributeVectors)]
     (prn labelAreaMap)
     (prn areasMedoidsMap)
     (let [clusteredLabelAreaMap (cluster-area-map labelAreaMap areasMedoidsMap)]

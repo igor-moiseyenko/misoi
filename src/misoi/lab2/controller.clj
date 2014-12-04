@@ -44,11 +44,60 @@
                                                (loadImagePath root (.getAbsolutePath file)))))))
 
 "Binary thresholding menu item controller."
-(defn- initBinThresholdingItem
+(defn- initBinThresholding50Item
   [root]
-  (listen (select root [:#bin-thresholding-menu-item])
+  (listen (select root [:#bin-thresholding-50-menu-item])
           :action (fn [event]
-                    (lab2Graphics/makeBinaryThresholding initialImageBuffer)
+                    (lab2Graphics/makeBinaryThresholding initialImageBuffer 50)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
+(defn- initBinThresholding100Item
+  [root]
+  (listen (select root [:#bin-thresholding-100-menu-item])
+          :action (fn [event]
+                    (lab2Graphics/makeBinaryThresholding initialImageBuffer 100)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
+(defn- initBinThresholding127Item
+  [root]
+  (listen (select root [:#bin-thresholding-127-menu-item])
+          :action (fn [event]
+                    (lab2Graphics/makeBinaryThresholding initialImageBuffer 127)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
+(defn- initBinThresholding145Item
+  [root]
+  (listen (select root [:#bin-thresholding-145-menu-item])
+          :action (fn [event]
+                    (lab2Graphics/makeBinaryThresholding initialImageBuffer 145)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
+(defn- initBinThresholding170Item
+  [root]
+  (listen (select root [:#bin-thresholding-170-menu-item])
+          :action (fn [event]
+                    (lab2Graphics/makeBinaryThresholding initialImageBuffer 170)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
+"Noise menu item controller."
+(defn- initMedianFilterMenuItem
+  [root]
+  (listen (select root [:#median-filter-menu-item])
+          :action (fn [event]
+                    (lab2Graphics/makeMedianFilter initialImageBuffer 3)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
+(defn- initMedianFilter5x5MenuItem
+  [root]
+  (listen (select root [:#median-filter-5x5-menu-item])
+          :action (fn [event]
+                    (lab2Graphics/makeMedianFilter initialImageBuffer 5)
                     (config! (select root [:#icon-label])
                              :icon initialImageBuffer))))
 
@@ -69,7 +118,47 @@
   [root]
   (listen (select root [:#k-medoids-clustering-menu-item])
           :action (fn [event]
-                    (lab2Graphics/makeClustering initialImageBuffer pixelLabels labelAreaMap areas)
+                    (lab2Graphics/makeClustering initialImageBuffer pixelLabels labelAreaMap 2)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
+(defn- initKMedoidsClustering3MenuItem
+  [root]
+  (listen (select root [:#k-medoids-clustering-3-menu-item])
+          :action (fn [event]
+                    (lab2Graphics/makeClustering initialImageBuffer pixelLabels labelAreaMap 3)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
+(defn- initKMedoidsClustering4MenuItem
+  [root]
+  (listen (select root [:#k-medoids-clustering-4-menu-item])
+          :action (fn [event]
+                    (lab2Graphics/makeClustering initialImageBuffer pixelLabels labelAreaMap 4)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
+(defn- initKMedoidsClustering5MenuItem
+  [root]
+  (listen (select root [:#k-medoids-clustering-5-menu-item])
+          :action (fn [event]
+                    (lab2Graphics/makeClustering initialImageBuffer pixelLabels labelAreaMap 5)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
+(defn- initKMedoidsClustering6MenuItem
+  [root]
+  (listen (select root [:#k-medoids-clustering-6-menu-item])
+          :action (fn [event]
+                    (lab2Graphics/makeClustering initialImageBuffer pixelLabels labelAreaMap 6)
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
+(defn- initKMedoidsClustering7MenuItem
+  [root]
+  (listen (select root [:#k-medoids-clustering-7-menu-item])
+          :action (fn [event]
+                    (lab2Graphics/makeClustering initialImageBuffer pixelLabels labelAreaMap 7)
                     (config! (select root [:#icon-label])
                              :icon initialImageBuffer))))
 
@@ -77,6 +166,20 @@
 (defn init
   [root]
   (initOpenMenuItem root)
-  (initBinThresholdingItem root)
+
+  (initBinThresholding50Item root)
+  (initBinThresholding100Item root)
+  (initBinThresholding127Item root)
+  (initBinThresholding145Item root)
+  (initBinThresholding170Item root)
+
+  (initMedianFilterMenuItem root)
+  (initMedianFilter5x5MenuItem root)
+
   (initRecursiveSegmentationMenuItem root)
-  (initKMedoidsClusteringMenuItem root))
+  (initKMedoidsClusteringMenuItem root)
+  (initKMedoidsClustering3MenuItem root)
+  (initKMedoidsClustering4MenuItem root)
+  (initKMedoidsClustering5MenuItem root)
+  (initKMedoidsClustering6MenuItem root)
+  (initKMedoidsClustering7MenuItem root))

@@ -11,8 +11,22 @@
                                :text "Open"))
 
 "Thresholding menu items."
-(def bin-thresholding-menu-item (menu-item :id :bin-thresholding-menu-item
-                                           :text "Binary"))
+(def bin-thresholding-50-menu-item (menu-item :id :bin-thresholding-50-menu-item
+                                              :text "Thresholding50"))
+(def bin-thresholding-100-menu-item (menu-item :id :bin-thresholding-100-menu-item
+                                               :text "Thresholding100"))
+(def bin-thresholding-127-menu-item (menu-item :id :bin-thresholding-127-menu-item
+                                               :text "Thresholding127"))
+(def bin-thresholding-145-menu-item (menu-item :id :bin-thresholding-145-menu-item
+                                               :text "Thresholding145"))
+(def bin-thresholding-170-menu-item (menu-item :id :bin-thresholding-170-menu-item
+                                               :text "Thresholding170"))
+
+"Noise menu items."
+(def median-filter-menu-item (menu-item :id :median-filter-menu-item
+                                        :text "Median 3x3"))
+(def median-filter-5x5-menu-item (menu-item :id :median-filter-5x5-menu-item
+                                            :text "Median 5x5"))
 
 "Segmentation menu items."
 (def recursive-segmentation-menu-item (menu-item :id :recursive-segmentation-menu-item
@@ -20,7 +34,17 @@
 
 "Clustering menu items."
 (def k-medoids-clustering-menu-item (menu-item :id :k-medoids-clustering-menu-item
-                                               :text "k-medoids"))
+                                               :text "k-medoids-2"))
+(def k-medoids-clustering-3-menu-item (menu-item :id :k-medoids-clustering-3-menu-item
+                                                 :text "k-medoids-3"))
+(def k-medoids-clustering-4-menu-item (menu-item :id :k-medoids-clustering-4-menu-item
+                                                 :text "k-medoids-4"))
+(def k-medoids-clustering-5-menu-item (menu-item :id :k-medoids-clustering-5-menu-item
+                                                 :text "k-medoids-5"))
+(def k-medoids-clustering-6-menu-item (menu-item :id :k-medoids-clustering-6-menu-item
+                                                 :text "k-medoids-6"))
+(def k-medoids-clustering-7-menu-item (menu-item :id :k-medoids-clustering-7-menu-item
+                                                 :text "k-medoids-7"))
 
 "Form elements"
 
@@ -46,12 +70,23 @@
   (frame :title "Lab2"
          :menubar (menubar :items [(menu :text "File"
                                          :items [open-menu-item])
-                                   (menu :text "Thresholding"
-                                         :items [bin-thresholding-menu-item])
+                                   (menu :text "Binarization"
+                                         :items [bin-thresholding-50-menu-item
+                                                 bin-thresholding-100-menu-item
+                                                 bin-thresholding-127-menu-item
+                                                 bin-thresholding-145-menu-item
+                                                 bin-thresholding-170-menu-item])
+                                   (menu :text "Noise"
+                                         :items [median-filter-menu-item median-filter-5x5-menu-item])
                                    (menu :text "Segmentation"
                                          :items [recursive-segmentation-menu-item])
                                    (menu :text "Clustering"
-                                         :items [k-medoids-clustering-menu-item])])
+                                         :items [k-medoids-clustering-menu-item
+                                                 k-medoids-clustering-3-menu-item
+                                                 k-medoids-clustering-4-menu-item
+                                                 k-medoids-clustering-5-menu-item
+                                                 k-medoids-clustering-6-menu-item
+                                                 k-medoids-clustering-7-menu-item])])
          :minimum-size [640 :by 480]
          :content form
          :on-close :exit))
