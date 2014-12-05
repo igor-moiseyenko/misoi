@@ -11,6 +11,8 @@
 "Filter menu items."
 (def gauss-menu-items (menu-item :id :gauss-menu-item
                                   :text "Gauss"))
+(def gauss-fast-menu-items (menu-item :id :gauss-fast-menu-item
+                                      :text "Gauss fast"))
 
 "Form elements"
 
@@ -41,7 +43,7 @@
          :menubar (menubar :items [(menu :text "File"
                                          :items [open-menu-item ])
                                    (menu :text "Edit"
-                                         :items [gauss-menu-items])])
+                                         :items [gauss-menu-items gauss-fast-menu-items])])
          :minimum-size [640 :by 480]
          :content form
          :on-close :exit))

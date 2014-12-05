@@ -45,11 +45,21 @@
   [root]
   (listen (select root [:#gauss-menu-item])
           :action (fn [event]
-                    (prn (lab3Graphics/applyGaussFilter initialImageBuffer 3))
+                    (prn (lab3Graphics/applyGaussMatrixFilter initialImageBuffer 1))
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
+"Gauss fast filter menu item controller."
+(defn- initGaussFastFilterMenuItem
+  [root]
+  (listen (select root [:#gauss-fast-menu-item])
+          :action (fn [event]
+                    (prn (lab3Graphics/applyGaussVectorFilter initialImageBuffer 1))
                     (config! (select root [:#icon-label])
                              :icon initialImageBuffer))))
 
 (defn init
   [root]
   (initOpenMenuItem root)
-  (initGaussFilterMenuItem root))
+  (initGaussFilterMenuItem root)
+  (initGaussFastFilterMenuItem root))

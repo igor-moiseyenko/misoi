@@ -87,6 +87,7 @@ Common functions to work with images & its pixels (RGB values).
             []
             rows)))
 
+"Set image matrix to the specified buffered image."
 (defn setImageMatrix
   [bufferedImage imageMatrix]
   (map (fn [imageMatrixRow imageMatrixRowIndex]
@@ -107,3 +108,12 @@ Common functions to work with images & its pixels (RGB values).
               (iterate inc 0)))
        imageMatrix
        (iterate inc 0)))
+
+"Returns image element intensity.
+ Returns 0 in case of the image element with specified row and col doesn't exists."
+(defn getIntensity
+  [imageMatrix row col getComponentIntensityFn]
+  (if (and (>= row 0) (>= col 0) (< row (count imageMatrix)) (< col (count (get imageMatrix 0))))
+    (getComponentIntensityFn (get-in imageMatrix [row col]))
+    0))
+
