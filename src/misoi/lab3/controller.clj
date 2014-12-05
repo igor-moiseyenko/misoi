@@ -40,6 +40,16 @@
                                                (loadImage root file)
                                                (loadImagePath root (.getAbsolutePath file)))))))
 
+"Gauss filter menu item controller."
+(defn- initGaussFilterMenuItem
+  [root]
+  (listen (select root [:#gauss-menu-item])
+          :action (fn [event]
+                    (prn (lab3Graphics/applyGaussFilter initialImageBuffer 3))
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
 (defn init
   [root]
-  (initOpenMenuItem root))
+  (initOpenMenuItem root)
+  (initGaussFilterMenuItem root))

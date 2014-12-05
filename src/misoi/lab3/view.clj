@@ -6,7 +6,11 @@
 
 "File menu items."
 (def open-menu-item (menu-item :id :open-menu-item
-                               :text "Open"))
+                                :text "Open"))
+
+"Filter menu items."
+(def gauss-menu-items (menu-item :id :gauss-menu-item
+                                  :text "Gauss"))
 
 "Form elements"
 
@@ -35,7 +39,9 @@
 (def f
   (frame :title "Lab3"
          :menubar (menubar :items [(menu :text "File"
-                                         :items [open-menu-item])])
+                                         :items [open-menu-item ])
+                                   (menu :text "Edit"
+                                         :items [gauss-menu-items])])
          :minimum-size [640 :by 480]
          :content form
          :on-close :exit))
