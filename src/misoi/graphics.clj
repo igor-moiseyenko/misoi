@@ -68,3 +68,42 @@ Common functions to work with images & its pixels (RGB values).
     [(frequencies (persistent! redValues))
      (frequencies (persistent! greenValues))
      (frequencies (persistent! blueValues))]))
+
+"Returns matrix, that represents specified buffered image.
+ col - stands for x in buffered image functions,
+ row - stands for y in buffered image functions."
+(defn getImageMatrix
+  [bufferedImage]
+  (let [width (.getWidth bufferedImage)
+        height (.getHeight bufferedImage)
+        rows (range height)
+        cols (range width)]
+    (reduce (fn [imageMatrix row]
+              (conj imageMatrix
+                    (reduce (fn [imageRow col]
+                              (conj imageRow (.getRGB bufferedImage col row)))
+                            []
+                            cols)))
+            []
+            rows)))
+
+(defn setImageMatrix
+  [bufferedImage imageMatrix]
+  (map (fn [imageMatrixRow imageMatrixRowIndex]
+         (map (fn [imageMatrixEl imageMatrixColIndex]
+                (.setRGB bufferedImage imageMatrixColIndex imageMatrixRowIndex imageMatrixEl))
+              imageMatrixRow
+              (iterate inc 0)))
+       imageMatrix
+       (iterate inc 0)))
+
+"Traverse image matrix and call specified callback function on each element."
+(defn traverseImageMatrix
+  [imageMatrix callback]
+  (map (fn [rowElements row]
+         (map (fn [element col]
+                (callback imageMatrix element row col))
+              rowElements
+              (iterate inc 0)))
+       imageMatrix
+       (iterate inc 0)))
