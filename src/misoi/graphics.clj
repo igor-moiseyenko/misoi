@@ -117,3 +117,8 @@ Common functions to work with images & its pixels (RGB values).
     (getComponentIntensityFn (get-in imageMatrix [row col]))
     0))
 
+"Returns RGB element intensity.
+ 0.299 * red + 0.587 * green + 0.114 * blue."
+(defn rgbIntensity
+  [rgbElement]
+  (+ (* 0.299 (getRGBRed rgbElement)) (* 0.587 (getRGBGreen rgbElement)) (* 0.114 (getRGBBlue rgbElement))))

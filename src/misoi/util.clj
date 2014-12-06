@@ -36,3 +36,24 @@
             (dissoc m k))
           m
           keys))
+
+(defn matrixScalarMultiplication
+  [scalar matrix]
+  (map (fn [matrixRow]
+         (map (fn [matrixEl]
+                (* scalar matrixEl))
+              matrixRow))
+       matrix))
+
+(defn matrixAddition
+  ([matrix1] matrix1)
+  ([matrix1 matrix2]
+   (map (fn [matrix1Row matrix2Row]
+          (map (fn [matrix1El matrix2El]
+                 (+ matrix1El matrix2El))
+               matrix1Row
+               matrix2Row))
+        matrix1
+        matrix2))
+  ([matrix1 matrix2 & more]
+   (reduce matrixAddition (matrixAddition matrix1 matrix2) more)))

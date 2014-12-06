@@ -58,8 +58,18 @@
                     (config! (select root [:#icon-label])
                              :icon initialImageBuffer))))
 
+"Forstner detector menu item controller."
+(defn- initGaussFastFilterMenuItem
+  [root]
+  (listen (select root [:#forstner-detector-menu-item])
+          :action (fn [event]
+                    (prn (lab3Graphics/runForstnerDetector initialImageBuffer 1))
+                    (config! (select root [:#icon-label])
+                             :icon initialImageBuffer))))
+
 (defn init
   [root]
   (initOpenMenuItem root)
   (initGaussFilterMenuItem root)
+  (initGaussFastFilterMenuItem root)
   (initGaussFastFilterMenuItem root))

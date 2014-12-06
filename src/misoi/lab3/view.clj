@@ -9,10 +9,14 @@
                                 :text "Open"))
 
 "Filter menu items."
-(def gauss-menu-items (menu-item :id :gauss-menu-item
-                                  :text "Gauss"))
-(def gauss-fast-menu-items (menu-item :id :gauss-fast-menu-item
-                                      :text "Gauss fast"))
+(def gauss-menu-item (menu-item :id :gauss-menu-item
+                                :text "Gauss"))
+(def gauss-fast-menu-item (menu-item :id :gauss-fast-menu-item
+                                     :text "Gauss fast"))
+
+"Run menu items."
+(def forstner-detector-menu-item (menu-item :id :forstner-detector-menu-item
+                                            :text "Forstner detector"))
 
 "Form elements"
 
@@ -43,7 +47,9 @@
          :menubar (menubar :items [(menu :text "File"
                                          :items [open-menu-item ])
                                    (menu :text "Edit"
-                                         :items [gauss-menu-items gauss-fast-menu-items])])
+                                         :items [gauss-menu-item gauss-fast-menu-item])
+                                   (menu :text "Run"
+                                         :items [forstner-detector-menu-item])])
          :minimum-size [640 :by 480]
          :content form
          :on-close :exit))
