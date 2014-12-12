@@ -57,3 +57,7 @@
         matrix2))
   ([matrix1 matrix2 & more]
    (reduce matrixAddition (matrixAddition matrix1 matrix2) more)))
+
+(defn matrixElementsSum
+  [matrix]
+  (apply + (map (fn [matrixRow] (apply + matrixRow)) matrix)))

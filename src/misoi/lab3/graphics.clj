@@ -245,7 +245,7 @@
 (defn- initImageMatrixResponses
   [imageMatrixGradients gaussMatrix]
   (graphics/traverseImageMatrix imageMatrixGradients
-                                (fn [imageMatrix gradientsXY row col]
+                                (fn [_ gradientsXY _ _]
                                   (getResponse gaussMatrix (get gradientsXY 0) (get gradientsXY 1)))))
 
 "Returns matrix with corner indicators."
@@ -261,7 +261,7 @@
 (defn- applyImageMatrixCornerIndicators
   [imageMatrix imageMatrixCornerIndicators]
   (graphics/traverseImageMatrix imageMatrix
-                                (fn [imageMatrix rgbElement row col]
+                                (fn [_ rgbElement row col]
                                   (if (= (nth (nth imageMatrixCornerIndicators row) col) 1)
                                     (-> rgbElement
                                         (graphics/setRGBRed 0)
